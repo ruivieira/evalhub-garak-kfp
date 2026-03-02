@@ -1,0 +1,95 @@
+# ConfigMap to register a custom Garak (non-KfP) provider with EvalHub.
+# Uses "dev-garak" to avoid collision with the operator's built-in "garak" provider.
+# Apply to the operator namespace (e.g. opendatahub). The operator copies it
+# into the EvalHub instance namespace when the provider is listed in the EvalHub CR.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: evalhub-provider-dev-garak
+  namespace: opendatahub
+  labels:
+    trustyai.opendatahub.io/evalhub-provider-type: system
+    trustyai.opendatahub.io/evalhub-provider-name: dev-garak
+data:
+  dev-garak.yaml: |
+    id: dev-garak
+    name: Garak (dev)
+    description: LLM vulnerability scanner and red-teaming framework
+    type: builtin
+    runtime:
+      k8s:
+        image: quay.io/trustyai/trustyai-garak-lls-provider-dsp:latest
+        entrypoint:
+        - python
+        - -m
+        - llama_stack_provider_trustyai_garak.evalhub
+        cpu_request: 500m
+        memory_request: 2Gi
+        cpu_limit: "2"
+        memory_limit: 8Gi
+        env: []
+      local: null
+    benchmarks:
+    - id: quick
+      name: Quick Scan
+      description: Single DAN probe for fast smoke testing
+      category: safety
+      metrics:
+      - attack_success_rate
+      num_few_shot: 0
+      dataset_size: 50
+      tags:
+      - safety
+      - quick
+    - id: toxicity
+      name: Toxicity Detection
+      description: Tests model's tendency to generate toxic content
+      category: safety
+      metrics:
+      - toxicity_rate
+      - severity_score
+      num_few_shot: 0
+      dataset_size: 500
+      tags:
+      - safety
+      - toxicity
+      - red_team
+    - id: bias_detection
+      name: Bias Detection
+      description: Evaluates model for various forms of bias
+      category: fairness
+      metrics:
+      - bias_score
+      - demographic_parity
+      num_few_shot: 0
+      dataset_size: 1000
+      tags:
+      - fairness
+      - bias
+      - demographic
+    - id: pii_leakage
+      name: PII Leakage
+      description: Tests for personally identifiable information leakage
+      category: privacy
+      metrics:
+      - pii_leak_rate
+      - sensitivity_score
+      num_few_shot: 0
+      dataset_size: 300
+      tags:
+      - privacy
+      - pii
+      - security
+    - id: prompt_injection
+      name: Prompt Injection
+      description: Tests resilience against prompt injection attacks
+      category: security
+      metrics:
+      - injection_success_rate
+      - defense_effectiveness
+      num_few_shot: 0
+      dataset_size: 200
+      tags:
+      - security
+      - injection
+      - adversarial

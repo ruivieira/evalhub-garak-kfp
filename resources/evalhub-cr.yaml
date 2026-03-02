@@ -1,0 +1,9 @@
+apiVersion: trustyai.opendatahub.io/v1alpha1
+kind: EvalHub
+metadata:
+  name: evalhub
+spec:
+  replicas: 1
+  providers:
+    - dev-garak
+    - dev-garak-kfp

@@ -1,0 +1,194 @@
+# ConfigMap to register a custom Garak (KfP) provider with EvalHub.
+# Uses "dev-garak-kfp" to avoid collision with the operator's built-in "garak-kfp" provider.
+# Apply to the operator namespace (e.g. opendatahub). Set KFP_NAMESPACE and
+# KFP_ENDPOINT / KFP_ARTIFACT_ENDPOINT to match your EvalHub and DSP namespace.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: evalhub-provider-dev-garak-kfp
+  namespace: opendatahub
+  labels:
+    trustyai.opendatahub.io/evalhub-provider-type: system
+    trustyai.opendatahub.io/evalhub-provider-name: dev-garak-kfp
+data:
+  dev-garak-kfp.yaml: |
+    id: dev-garak-kfp
+    name: Garak KFP (dev)
+    description: LLM vulnerability scanner delegating execution to a Kubeflow Pipeline
+    type: builtin
+    runtime:
+      k8s:
+        image: quay.io/trustyai/trustyai-garak-lls-provider-dsp:latest
+        entrypoint:
+        - python
+        - -m
+        - llama_stack_provider_trustyai_garak.evalhub.kfp_adapter
+        cpu_request: 100m
+        memory_request: 128Mi
+        cpu_limit: 500m
+        memory_limit: 1Gi
+        env:
+        - name: KFP_ENDPOINT
+          value: "https://ds-pipeline-dspa.evalhub-garak.svc.cluster.local:8443"
+        - name: KFP_NAMESPACE
+          value: "evalhub-garak"
+        - name: KFP_TLS_VERIFY
+          value: "false"
+        - name: KFP_EXPERIMENT_NAME
+          value: "trustyai-garak"
+        - name: KFP_POLL_INTERVAL
+          value: "30"
+        - name: KFP_PIPELINE_TIMEOUT
+          value: "43200"
+        - name: KFP_MAX_RETRIES
+          value: "3"
+        - name: KUBEFLOW_GARAK_BASE_IMAGE
+          value: "quay.io/trustyai/trustyai-garak-lls-provider-dsp:latest"
+        - name: KFP_ARTIFACT_PIPELINE_ROOT
+          value: "minio://mlpipeline/v2/artifacts"
+        - name: KFP_ARTIFACT_ENDPOINT
+          value: "http://minio-dspa.evalhub-garak.svc.cluster.local:9000"
+      local: null
+    benchmarks:
+    - id: quick
+      name: Quick Scan
+      description: Single DAN probe for fast smoke testing
+      category: safety
+      metrics:
+      - attack_success_rate
+      num_few_shot: 0
+      dataset_size: 50
+      tags:
+      - safety
+      - quick
+    - id: owasp_llm_top10
+      name: OWASP LLM Top 10
+      description: OWASP Top 10 for LLM Applications
+      category: security
+      metrics:
+      - attack_success_rate
+      num_few_shot: 0
+      dataset_size: 500
+      tags:
+      - security
+      - owasp
+    - id: avid
+      name: AVID Taxonomy
+      description: All AI vulnerability categories from AVID taxonomy
+      category: security
+      metrics:
+      - attack_success_rate
+      num_few_shot: 0
+      dataset_size: 1000
+      tags:
+      - security
+      - avid
+    - id: avid_security
+      name: AVID Security
+      description: Security-focused vulnerabilities from AVID taxonomy
+      category: security
+      metrics:
+      - attack_success_rate
+      num_few_shot: 0
+      dataset_size: 500
+      tags:
+      - security
+      - avid
+    - id: avid_ethics
+      name: AVID Ethics
+      description: Ethics-focused evaluations from AVID taxonomy
+      category: fairness
+      metrics:
+      - attack_success_rate
+      num_few_shot: 0
+      dataset_size: 500
+      tags:
+      - fairness
+      - ethics
+      - avid
+    - id: avid_performance
+      name: AVID Performance
+      description: Performance-focused evaluations from AVID taxonomy
+      category: safety
+      metrics:
+      - attack_success_rate
+      num_few_shot: 0
+      dataset_size: 500
+      tags:
+      - performance
+      - avid
+    - id: quality
+      name: Quality Issues
+      description: Tests for toxicity, hate speech, profanity, and violence
+      category: safety
+      metrics:
+      - attack_success_rate
+      num_few_shot: 0
+      dataset_size: 500
+      tags:
+      - safety
+      - toxicity
+      - quality
+    - id: cwe
+      name: CWE
+      description: Common Weakness Enumeration software security tests
+      category: security
+      metrics:
+      - attack_success_rate
+      num_few_shot: 0
+      dataset_size: 500
+      tags:
+      - security
+      - cwe
+    - id: toxicity
+      name: Toxicity Detection
+      description: Tests model's tendency to generate toxic content
+      category: safety
+      metrics:
+      - toxicity_rate
+      - severity_score
+      num_few_shot: 0
+      dataset_size: 500
+      tags:
+      - safety
+      - toxicity
+      - red_team
+    - id: bias_detection
+      name: Bias Detection
+      description: Evaluates model for various forms of bias
+      category: fairness
+      metrics:
+      - bias_score
+      - demographic_parity
+      num_few_shot: 0
+      dataset_size: 1000
+      tags:
+      - fairness
+      - bias
+      - demographic
+    - id: pii_leakage
+      name: PII Leakage
+      description: Tests for personally identifiable information leakage
+      category: privacy
+      metrics:
+      - pii_leak_rate
+      - sensitivity_score
+      num_few_shot: 0
+      dataset_size: 300
+      tags:
+      - privacy
+      - pii
+      - security
+    - id: prompt_injection
+      name: Prompt Injection
+      description: Tests resilience against prompt injection attacks
+      category: security
+      metrics:
+      - injection_success_rate
+      - defense_effectiveness
+      num_few_shot: 0
+      dataset_size: 200
+      tags:
+      - security
+      - injection
+      - adversarial

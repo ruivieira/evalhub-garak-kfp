@@ -4,8 +4,6 @@ Use the **`:latest`** images for both the TrustyAI operator and EvalHub (e.g. `q
 
 End-to-end guide for deploying EvalHub with Garak red-teaming on an OpenDataHub (ODH) cluster. Garak scans run as Kubeflow Pipelines (KFP / DSP v2) jobs, orchestrated through EvalHub's evaluation API.
 
-**Install and run (both KfP and non-KfP):** see **[INSTALL-AND-RUN.md](INSTALL-AND-RUN.md)** for step-by-step installation and running of EvalHub with the Garak provider (direct Garak vs Garak via KFP).
-
 ## Prerequisites
 
 - OpenShift cluster with OpenDataHub installed

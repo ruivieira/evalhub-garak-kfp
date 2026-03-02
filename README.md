@@ -6,35 +6,6 @@ End-to-end guide for deploying EvalHub with Garak red-teaming on an OpenDataHub 
 
 **Install and run (both KfP and non-KfP):** see **[INSTALL-AND-RUN.md](INSTALL-AND-RUN.md)** for step-by-step installation and running of EvalHub with the Garak provider (direct Garak vs Garak via KFP).
 
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  OpenShift / ODH Cluster                                        │
-│                                                                 │
-│  ┌──────────────────┐    ┌──────────────────────────────────┐   │
-│  │  TrustyAI        │    │  Namespace: <your-ns>            │   │
-│  │  Operator         │───▶│                                  │   │
-│  │  (opendatahub ns) │    │  ┌────────────┐  ┌───────────┐  │   │
-│  └──────────────────┘    │  │  EvalHub    │  │ Garak     │  │   │
-│                          │  │  (API +     │  │ (KFP      │  │   │
-│                          │  │   kube-rbac │  │ adapter)  │  │   │
-│                          │  │   -proxy)   │  │            │  │   │
-│                          │  └──────┬─────┘  └─────┬─────┘  │   │
-│                          │         │              │         │   │
-│                          │         ▼              ▼         │   │
-│                          │  ┌────────────┐  ┌───────────┐  │   │
-│                          │  │ Eval Jobs  │  │ KFP / DSP │  │   │
-│                          │  │ (K8s Jobs) │  │ (Garak    │  │   │
-│                          │  └────────────┘  │  scans)   │  │   │
-│                          │                  └───────────┘  │   │
-│                          └──────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-**EvalHub** provides the REST API for managing evaluation jobs (benchmarks, collections, providers).
-**Garak** runs red-teaming scans (prompt injection, jailbreaks, toxicity, OWASP LLM Top 10) as KFP pipeline runs.
-
 ## Prerequisites
 
 - OpenShift cluster with OpenDataHub installed
